@@ -22,6 +22,7 @@ from googleapiclient.discovery import build
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+import googleapiclient.http
 
 openai.api_key = os.getenv("APIKEY")
 
@@ -208,10 +209,14 @@ request_body = {
     }
 }
 
-response = youtube.videos().insert(
+request = youtube.videos().insert(
     part="snippet,status",
     body=request_body,
     media_body=output_path
-).execute(timeout=3600)
+)
+
+timeout=3600
+
+response = Request.execute(http=googleapiclient.http.Http(timeout=timeout))
 
 print("Video uploaded successfully! Video ID:", response["id"])
