@@ -212,6 +212,6 @@ response = youtube.videos().insert(
     part="snippet,status",
     body=request_body,
     media_body=output_path
-).execute()
+).execute(timeout=3600)
 
 print("Video uploaded successfully! Video ID:", response["id"])
