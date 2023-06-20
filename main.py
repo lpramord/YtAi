@@ -214,7 +214,8 @@ request1 = youtube.videos().insert(
 
 timeout=3600
 
-http = credentials.authorize(httplib2.Http(timeout=timeout))
-response = request1.execute(http=http)
+http = httplib2.Http(timeout=timeout)
+http = credentials.authorize(http)
+response = request.execute(http=http)
 
 print("Video uploaded successfully! Video ID:", response["id"])
