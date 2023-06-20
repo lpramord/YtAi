@@ -216,6 +216,6 @@ request1 = youtube.videos().insert(
 
 timeout=3600
 
-response = request1.execute()
+response = request1.execute(http=googleapiclient.http.Http(timeout=timeout))
 
 print("Video uploaded successfully! Video ID:", response["id"])
