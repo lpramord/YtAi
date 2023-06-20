@@ -209,7 +209,7 @@ request_body = {
     }
 }
 
-request = youtube.videos().insert(
+request1 = youtube.videos().insert(
     part="snippet,status",
     body=request_body,
     media_body=output_path
@@ -217,6 +217,6 @@ request = youtube.videos().insert(
 
 timeout=3600
 
-response = Request.execute(http=googleapiclient.http.Http(timeout=timeout))
+response = request1.execute(http=googleapiclient.http.Http(timeout=timeout))
 
 print("Video uploaded successfully! Video ID:", response["id"])
