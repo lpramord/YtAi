@@ -17,10 +17,9 @@ from PIL import Image, ImageDraw, ImageFont
 
 from datetime import date
 
-from googleapiclient.discovery import build
-
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+import httplib2
 
 openai.api_key = os.getenv("APIKEY")
 
@@ -215,6 +214,7 @@ request1 = youtube.videos().insert(
 
 timeout=3600
 
-response = request1.execute(num_retries=5, timeout=timeout)
+http = credentials.authorize(httplib2.Http(timeout=timeout))
+response = request1.execute(http=http)
 
 print("Video uploaded successfully! Video ID:", response["id"])
