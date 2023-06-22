@@ -189,10 +189,14 @@ os.remove(name)
 client_secrets_file = "./client_secret.json"
 scopes = ["https://www.googleapis.com/auth/youtube.upload"]
 
-flow = InstalledAppFlow.from_client_secrets_file(client_secrets_file, scopes)
+flow = InstalledAppFlow.from_client_secrets_file(client_secrets_file, scopes=scopes)
 credentials = flow.run_local_server(port=8080)
 
-creds = google_credentials.Credentials.from_authorized_user_info(credentials)
+refresh_token = credentials.refresh_token
+
+data = {
+    "refresh_token": refresh_token
+}
 
 youtube = build("youtube", "v3", credentials=credentials)
 
@@ -221,8 +225,8 @@ request1 = youtube.videos().insert(
 
 def authenticationRefresh():
     while True:
-        if creds.expired:
-            creds.refresh(Request())
+        with open('refresh_token.json', 'w') as file:
+            json.dump(data, file)
 
 def upload():
     timeout=3600
