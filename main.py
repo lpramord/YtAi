@@ -190,11 +190,11 @@ client_secrets_file = "./client_secret.json"
 scopes = ["https://www.googleapis.com/auth/youtube.upload"]
 
 flow = InstalledAppFlow.from_client_secrets_file(client_secrets_file, scopes)
-credentials1 = flow.run_local_server(port=8080)
+credentials = flow.run_local_server(port=8080)
 
-creds = credentials.Credentials.from_authorized_user_info(credentials1)
+creds = credentials.Credentials.from_authorized_user_info(credentials)
 
-youtube = build("youtube", "v3", credentials=credentials1)
+youtube = build("youtube", "v3", credentials=credentials)
 
 request_body = {
     "snippet": {
