@@ -17,11 +17,14 @@ from PIL import Image, ImageDraw, ImageFont
 
 from datetime import date
 
+from google.oauth2 import credentials
 from googleapiclient.discovery import build
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 import httplib2
+
+import threading
 
 openai.api_key = os.getenv("APIKEY")
 
@@ -187,9 +190,11 @@ client_secrets_file = "./client_secret.json"
 scopes = ["https://www.googleapis.com/auth/youtube.upload"]
 
 flow = InstalledAppFlow.from_client_secrets_file(client_secrets_file, scopes)
-credentials = flow.run_local_server(port=8080)
+credentials1 = flow.run_local_server(port=8080)
 
-youtube = build("youtube", "v3", credentials=credentials)
+creds = credentials.Credentials.from_authorized_user_info(credentials1)
+
+youtube = build("youtube", "v3", credentials=credentials1)
 
 request_body = {
     "snippet": {
@@ -214,9 +219,21 @@ request1 = youtube.videos().insert(
     media_body=output_path
 )
 
-timeout=3600
+def authenticationRefresh():
+    if creds.expired:
+        creds.refresh(Request())
 
-http = httplib2.Http(timeout=timeout)
-response = request1.execute(http=http)
+def upload():
+    timeout=3600
+    http = httplib2.Http(timeout=timeout)
+    response = request1.execute(http=http)
+    print("Video uploaded successfully! Video ID:", response["id"])
 
-print("Video uploaded successfully! Video ID:", response["id"])
+funtion1 = threading.Thread(target=authenticationRefresh)
+funtion2 = threading.Thread(target=upload)
+
+funtion1.start()
+funtion2.start()
+
+funtion1.join()
+funtion2.join()
