@@ -17,12 +17,12 @@ from PIL import Image, ImageDraw, ImageFont
 
 from datetime import date
 
-from google.oauth2 import credentials
 from googleapiclient.discovery import build
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 import httplib2
+from google.oauth2 import credentials as google_credentials
 
 import threading
 
@@ -192,7 +192,7 @@ scopes = ["https://www.googleapis.com/auth/youtube.upload"]
 flow = InstalledAppFlow.from_client_secrets_file(client_secrets_file, scopes)
 credentials = flow.run_local_server(port=8080)
 
-creds = credentials.Credentials.from_authorized_user_info(credentials)
+creds = google_credentials.Credentials.from_authorized_user_info(credentials)
 
 youtube = build("youtube", "v3", credentials=credentials)
 
