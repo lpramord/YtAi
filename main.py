@@ -220,8 +220,9 @@ request1 = youtube.videos().insert(
 )
 
 def authenticationRefresh():
-    if creds.expired:
-        creds.refresh(Request())
+    while True:
+        if creds.expired:
+            creds.refresh(Request())
 
 def upload():
     timeout=3600
