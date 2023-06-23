@@ -24,8 +24,6 @@ from googleapiclient.discovery import build
 import httplib2
 from google.oauth2 import credentials as google_credentials
 
-import threading
-
 openai.api_key = os.getenv("APIKEY")
 
 def create_story(prompt):
