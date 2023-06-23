@@ -223,22 +223,10 @@ request1 = youtube.videos().insert(
     media_body=output_path
 )
 
-def authenticationRefresh():
-    while True:
-        with open('refresh_token.json', 'w') as file:
-            json.dump(data, file)
+with open('refresh_token.json', 'w') as file:
+    json.dump(data, file)
 
-def upload():
-    timeout=3600
-    http = httplib2.Http(timeout=timeout)
-    response = request1.execute(http=http)
-    print("Video uploaded successfully! Video ID:", response["id"])
-
-funtion1 = threading.Thread(target=authenticationRefresh)
-funtion2 = threading.Thread(target=upload)
-
-funtion1.start()
-funtion2.start()
-
-funtion1.join()
-funtion2.join()
+timeout=3600
+http = httplib2.Http(timeout=timeout)
+response = request1.execute(http=http)
+print("Video uploaded successfully! Video ID:", response["id"])
