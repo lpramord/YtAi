@@ -2,7 +2,7 @@ python-dotenv
 openai
 requests
 pyttsx3
-moviepy
+opencv-python
 Pillow
 google-api-python-client
 google-auth-oauthlib

@@ -11,7 +11,7 @@ import json
 
 import pyttsx3
 
-from moviepy.editor import VideoFileClip, concatenate_videoclips, AudioFileClip
+import cv2
 
 from PIL import Image, ImageDraw, ImageFont
 
@@ -89,7 +89,7 @@ def narrate_story(story_text):
 
 narrate_story(story)
 
-audio = AudioFileClip(audioPath)
+""" audio = AudioFileClip(audioPath) """
 
 directory = "./rawVideos"
 
@@ -98,16 +98,19 @@ video_paths = sorted(file_list, key=lambda x: os.path.getmtime(x))
 
 output_path = "./update/"+str(date.today())+".mp4"
 
-video_clips = [VideoFileClip(path) for path in video_paths]
-final_clip = concatenate_videoclips(video_clips)
-video = final_clip.set_audio(audio)
-video.write_videofile(output_path)
+video_clips = [cv2.VideoCapture(path) for path in video_paths]
 
-video.close()
-final_clip.close()
-for video in video_clips:
-    video.close()
-audio.close()
+frame_width = int(video_clips[0].get(3))
+frame_height = int(video_clips[0].get(4))
+fps = video_clips[0].get(cv2.CAP_PROP_FPS)
+
+fourcc = cv2.VideoWriter_fourcc(*"mp4v")
+
+final_clip = cv2.VideoWriter(output_path, fourcc, fps, (frame_width, frame_height))
+
+for i in range(len(video_clips)):
+    ret, frame = video_clips[i-1].read()
+    final_clip.write(frame)
 
 for video in video_paths:
     os.remove(video)
