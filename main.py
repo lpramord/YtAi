@@ -17,12 +17,10 @@ from PIL import Image, ImageDraw, ImageFont
 
 from datetime import date
 
-from googleapiclient.discovery import build
-from google.auth.transport.requests import Request
+import googleapiclient.discovery
+import google.auth
 from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
-import httplib2
-from google.oauth2 import credentials as google_credentials
+from googleapiclient.http import MediaFileUpload
 
 openai.api_key = os.getenv("APIKEY")
 
@@ -184,47 +182,48 @@ image.close()
 
 os.remove(name)
 
-client_secrets_file = "./client_secret.json"
 scopes = ["https://www.googleapis.com/auth/youtube.upload"]
+client_secrets_file = "client_secret.json"
+credentials_file = "credentials.json"
 
-flow = InstalledAppFlow.from_client_secrets_file(client_secrets_file, scopes=scopes)
-credentials = flow.run_local_server(port=8080)
+def authenticate():
+    flow = InstalledAppFlow.from_client_secrets_file(client_secrets_file, scopes)
+    credentials = flow.run_local_server(port=8080)
+    with open(credentials_file, "w") as file:
+        file.write(credentials.to_json())
 
-refresh_token = credentials.refresh_token
-
-data = {
-    "refresh_token": refresh_token
-}
-
-youtube = build("youtube", "v3", credentials=credentials)
-
-request_body = {
-    "snippet": {
-        "title": tittle,
-        "description": discription,
-        "tags": words,
-        "categoryId": "22",
-        "thumbnails": {
-            "default": {
-                "url": thumblocation
+def upload_video(video_path, title, description, tags, category_id, thumbnail_path):
+    credentials = None
+    if os.path.exists(credentials_file):
+        with open(credentials_file, "r") as file:
+            credentials_json = file.read()
+            credentials = google.auth.credentials.Credentials.from_authorized_user_info(json.loads(credentials_json), scopes)
+    if not credentials or not credentials.valid:
+        authenticate()
+    youtube = googleapiclient.discovery.build("youtube", "v3", credentials=credentials)
+    media = MediaFileUpload(video_path)
+    request_body = {
+        "snippet": {
+            "title": title,
+            "description": description,
+            "tags": tags,
+            "categoryId": category_id,
+            "thumbnails": {
+                "default": {
+                    "url": thumbnail_path
+                }
             }
+        },
+        "status": {
+            "privacyStatus": "public"
         }
-    },
-    "status": {
-        "privacyStatus": "public"
     }
-}
+    request = youtube.videos().insert(
+        part="snippet,status",
+        body=request_body,
+        media_body=media
+    )
+    response = request.execute()
+    print("Video uploaded successfully! Video ID:", response["id"])
 
-request1 = youtube.videos().insert(
-    part="snippet,status",
-    body=request_body,
-    media_body=output_path
-)
-
-with open('refresh_token.json', 'w') as file:
-    json.dump(data, file)
-
-timeout=3600
-http = httplib2.Http(timeout=timeout)
-response = request1.execute(http=http)
-print("Video uploaded successfully! Video ID:", response["id"])
+upload_video(output_path, tittle, discription, words, 22, thumblocation)
